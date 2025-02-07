@@ -20,3 +20,4 @@ export const deleteAccessRole = async (roleId: string) => {
   const res = await axios.delete(`/api/user-permissions/${roleId}/delete`);
   return res.data;
 };
+//nice
