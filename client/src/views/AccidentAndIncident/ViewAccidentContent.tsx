@@ -20,7 +20,6 @@ import FireExtinguisherIcon from "@mui/icons-material/FireExtinguisher";
 import { Accident } from "../../api/accidentAndIncidentApi";
 import WarningIcon from "@mui/icons-material/Warning";
 import { formatDate } from "date-fns";
-import { format, parseISO } from "date-fns";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -93,7 +92,7 @@ function ViewAccidentContent({ accident }: { accident: Accident }) {
           />
           <DrawerContentItem
             label="Reported Date"
-            value={format(accident.accidentDate, "yyyy-MM-dd")}
+            value={accident.accidentDate.toDateString()}
             sx={{ flex: 1 }}
           />
         </Box>
@@ -382,11 +381,11 @@ function ViewAccidentContent({ accident }: { accident: Accident }) {
         <DrawerContentItem label="Reported By" value={accident.reporter} />
         <DrawerContentItem
           label="Accident Date"
-          value={accident.accidentDate ? format(accident.accidentDate, "MM-dd-yyyy") : "N/A"}
+          value={formatDate(accident.accidentDate, "dd/MM/yyyy")}
         />
         <DrawerContentItem
           label="Accident Time"
-          value={formatDate(accident.accidentTime, "HH:mm")}
+          value={accident.accidentTime.toLocaleTimeString()}
         />
         <DrawerContentItem label="Injury Type" value={accident.injuryType} />
         <DrawerContentItem label="Severity" value={accident.severity} />
