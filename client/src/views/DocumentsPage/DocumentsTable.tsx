@@ -9,7 +9,6 @@ import {
   Alert,
   Box,
   Button,
-  LinearProgress,
   Stack,
   Theme,
   Typography,
@@ -23,20 +22,18 @@ import ViewDataDrawer, { DrawerHeader } from "../../components/ViewDataDrawer";
 import AddIcon from "@mui/icons-material/Add";
 import AddOrEditDocumentDialog from "./AddOrEditDocumentDialog";
 import { sampleDocuments } from "../../api/sampleData/documentData";
-import { Document,createDocumentRecord,getDocumentList } from "../../api/documentApi";
+import { Document } from "../../api/documentApi";
 import { differenceInDays, format } from "date-fns";
 import ViewDocumentContent from "./ViewDocumentContent";
 import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import { useSnackbar } from "notistack";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import queryClient from "../../state/queryClient";
 
 function DocumentTable() {
   const { enqueueSnackbar } = useSnackbar();
   const [openViewDrawer, setOpenViewDrawer] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Document>(null);
   const [openAddOrEditDialog, setOpenAddOrEditDialog] = useState(false);
-  // const [documents, setDocuments] = useState<Document[]>(sampleDocuments);
+  const [documents, setDocuments] = useState<Document[]>(sampleDocuments);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const breadcrumbItems = [
@@ -47,29 +44,6 @@ function DocumentTable() {
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("md")
   );
-
-  const { data: documents, isFetching: isDocumentDataFetching } = useQuery({
-    queryKey: ["documentRecords"],
-    queryFn: getDocumentList,
-  });
-
-  const { mutate: createHazardRiskMutation, } = useMutation({
-    mutationFn: createDocumentRecord,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documentRecords"] });
-      enqueueSnackbar("Document Record Created Successfully!", {
-        variant: "success",
-      });
-      setSelectedRow(null);
-      setOpenViewDrawer(false);
-      setOpenAddOrEditDialog(false);
-    },
-    onError: () => {
-      enqueueSnackbar(`Document Record Creation Failed`, {
-        variant: "error",
-      });
-    },
-  });
 
   return (
     <Stack>
@@ -113,7 +87,6 @@ function DocumentTable() {
               Add New Document
             </Button>
           </Box>
-          {isDocumentDataFetching && <LinearProgress sx={{ width: "100%" }} />}
           <Table aria-label="simple table">
             <TableHead sx={{ backgroundColor: "var(--pallet-lighter-blue)" }}>
               <TableRow>
@@ -229,19 +202,18 @@ function DocumentTable() {
           onSubmit={(data) => {
             if (selectedRow) {
               console.log("Updating document", data);
-              // setDocuments(
-              //   documents.map((doc) => (doc.id === data.id ? data : doc))
-              // ); // Update the document in the list if it already exists
+              setDocuments(
+                documents.map((doc) => (doc.id === data.id ? data : doc))
+              ); // Update the document in the list if it already exists
               enqueueSnackbar("Document Details Updated Successfully!", {
                 variant: "success",
               });
             } else {
               console.log("Adding new document", data);
-              createHazardRiskMutation(data)
-              // setDocuments([...documents, data]); // Add new document to the list
-              // enqueueSnackbar("Document Created Successfully!", {
-              //   variant: "success",
-              // });
+              setDocuments([...documents, data]); // Add new document to the list
+              enqueueSnackbar("Document Created Successfully!", {
+                variant: "success",
+              });
             }
             setSelectedRow(null);
             setOpenViewDrawer(false);
@@ -264,7 +236,7 @@ function DocumentTable() {
           }
           handleClose={() => setDeleteDialogOpen(false)}
           deleteFunc={async () => {
-            // setDocuments(documents.filter((doc) => doc.id !== selectedRow.id));
+            setDocuments(documents.filter((doc) => doc.id !== selectedRow.id));
           }}
           onSuccess={() => {
             setOpenViewDrawer(false);
