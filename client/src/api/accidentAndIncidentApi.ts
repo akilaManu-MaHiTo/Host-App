@@ -147,6 +147,7 @@ export const AccidentSchema = z.object({
   effectedIndividuals: z.array(AccidentEffectedIndividualSchema),
   imageUrl: z.string().optional(),
   reporter: z.string(),
+  createdByUser: z.string(),
 });
 
 export type Accident = z.infer<typeof AccidentSchema>;
@@ -180,6 +181,7 @@ export const IncidentSchema = z.object({
   typeOfConcern: z.nativeEnum(IncidentTypeOfConcern),
   factors: z.nativeEnum(IncidentFactors),
   causes: z.string().optional(),
+  createdByUser: z.string(),
 });
 
 export type Incident = z.infer<typeof IncidentSchema>;
@@ -196,9 +198,12 @@ export const createAccident = async (accident: Accident) => {
 
     if (Array.isArray(value)) {
       value.forEach((item, index) => {
-        if (key === 'witnesses' || key === 'effectedIndividuals') {
+        if (key === "witnesses" || key === "effectedIndividuals") {
           Object.keys(item).forEach((nestedKey) => {
-            formData.append(`${key}[${index}][${nestedKey}]`, item[nestedKey].toString());
+            formData.append(
+              `${key}[${index}][${nestedKey}]`,
+              item[nestedKey]?.toString()
+            );
           });
         } else {
           formData.append(`${key}[${index}]`, JSON.stringify(item));
@@ -228,9 +233,12 @@ export const updateAccident = async (accident: Accident) => {
 
     if (Array.isArray(value)) {
       value.forEach((item, index) => {
-        if (key === 'witnesses' || key === 'effectedIndividuals') {
+        if (key === "witnesses" || key === "effectedIndividuals") {
           Object.keys(item).forEach((nestedKey) => {
-            formData.append(`${key}[${index}][${nestedKey}]`, item[nestedKey].toString());
+            formData.append(
+              `${key}[${index}][${nestedKey}]`,
+              item[nestedKey].toString()
+            );
           });
         } else {
           formData.append(`${key}[${index}]`, JSON.stringify(item));
@@ -241,7 +249,7 @@ export const updateAccident = async (accident: Accident) => {
     } else if (value !== null && value !== undefined) {
       formData.append(key, value.toString());
     }
-  });  
+  });
   const res = await axios.post(
     `/api/accidents/${accident.id}/update`,
     formData,
@@ -276,7 +284,10 @@ export const createIncidents = async (incidents: Incident) => {
       value.forEach((item, index) => {
         if (key === "witnesses" || key === "effectedIndividuals") {
           Object.keys(item).forEach((nestedKey) => {
-            formData.append(`${key}[${index}][${nestedKey}]`, item[nestedKey].toString());
+            formData.append(
+              `${key}[${index}][${nestedKey}]`,
+              item[nestedKey].toString()
+            );
           });
         } else {
           formData.append(`${key}[${index}]`, JSON.stringify(item));
@@ -309,7 +320,10 @@ export const updateIncident = async (incident: Incident) => {
       value.forEach((item, index) => {
         if (key === "witnesses" || key === "effectedIndividuals") {
           Object.keys(item).forEach((nestedKey) => {
-            formData.append(`${key}[${index}][${nestedKey}]`, item[nestedKey].toString());
+            formData.append(
+              `${key}[${index}][${nestedKey}]`,
+              item[nestedKey]?.toString()
+            );
           });
         } else {
           formData.append(`${key}[${index}]`, JSON.stringify(item));
@@ -338,5 +352,4 @@ export const updateIncident = async (incident: Incident) => {
 export const deleteIncident = async (id: string) => {
   const res = await axios.delete(`/api/incidents/${id}/delete`);
   return res.data;
-};//push
-
+}; //push
